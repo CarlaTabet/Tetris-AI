@@ -17,10 +17,11 @@ CONFIG = {
     "min_epsilon": 0.1,
     "gamma": 0.99,
     "batch_size": 64,
-    "num_episodes": 1000,
+    "num_episodes": 100,
     "actions": ["LEFT", "RIGHT", "DOWN", "ROTATE"],
     "render_training": False,         # Render the game visually during training
     "render": True,                   # Render during gameplay or debugging
     "target_update": 0.01,
-    "save_path": "trained_model.pth", # Path to save/load the trained model
+    "save_path": "trained_model.pth"
+    # Path to save/load the trained model
 }

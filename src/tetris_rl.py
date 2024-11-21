@@ -56,6 +56,10 @@ def play_model(render=True):
             next_state, _, done = env.step(action)
             state = next_state
 
+            print(f"State before action: {state}")
+            print(f"Selected action: {CONFIG['actions'][action_index]}")
+            print(f"State after action: {next_state}, Done: {done}")
+
     finally:
         env.close()
 

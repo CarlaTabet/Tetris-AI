@@ -148,6 +148,72 @@ class Tetris:
         return self.score  # Reward based on cleared lines
 
 
+class TetrisRL(Tetris):
+    """
+    Modified Tetris class for reinforcement learning.
+    """
+
+    def step(self, action):
+        """
+        Executes an action and updates the game state.
+        :param action: Action to take ('LEFT', 'RIGHT', 'DOWN', 'ROTATE').
+        :return: Tuple (next_state, reward, done).
+        """
+        if action == "LEFT":
+            self.move_side(-1)
+        elif action == "RIGHT":
+            self.move_side(1)
+        elif action == "DOWN":
+            self.move_down()
+        elif action == "ROTATE":
+            self.rotate_piece()
+
+        reward = self.calculate_reward()
+        done = self.state == "gameover"
+        next_state = self.get_board_state()
+        return next_state, reward, done
+
+    def calculate_reward(self):
+        """
+        Calculates the reward based on the current game state.
+        :return: Reward for the current step.
+        """
+        if self.state == "gameover":
+            return -10  # Penalty for game over
+        return self.lines  # Reward is based on lines cleared
+
+    def get_board_state(self):
+        """
+        Returns the current grid as a binary NumPy array.
+        :return: A 2D NumPy array of the grid.
+        """
+        state = np.array(self.field)
+        if self.active_piece:
+            for i in range(4):
+                for j in range(4):
+                    if i * 4 + j in self.active_piece.image():
+                        x = j + self.active_piece.x
+                        y = i + self.active_piece.y
+                        if 0 <= x < self.width and 0 <= y < self.height:
+                            state[y][x] = self.active_piece.color
+        return state
+
+    def render(self, screen):
+        """
+        Renders the game board and active piece.
+        :param screen: Pygame display surface.
+        """
+        screen.fill((230, 230, 230))
+        self.draw_grid(screen)
+        self.draw_piece(screen)
+        self.display_stats(screen)
+
+        if self.state == "gameover":
+            self.display_game_over(screen)
+
+        pygame.display.flip()
+
+
 class VisualTetris(Tetris):
     """
     Subclass of Tetris with rendering capabilities using pygame.
@@ -239,3 +305,53 @@ class Figure:
 
     def rotate(self):
         self.rotation = (self.rotation + 1) % len(self.figures[self.type])
+def main_rl():
+    pygame.init()
+    size = (400, 600)
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("RL Tetris")
+    clock = pygame.time.Clock()
+    fps = 30
+
+    # Create game environment
+    game = TetrisRL(20, 10)
+    game.spawn_piece()
+
+    # Placeholder for RL agent
+    agent = None  # Replace with your RL agent instance
+    epsilon = 1.0  # Exploration factor (decays during training)
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Replace random action with RL agent action
+        if agent is not None:
+            action = agent.select_action(game.get_board_state(), epsilon)
+        else:
+            action = random.choice(["LEFT", "RIGHT", "DOWN", "ROTATE"])
+
+        # Execute action in the environment
+        next_state, reward, done = game.step(action)
+
+        # Render the game
+        game.render(screen)
+
+        # Debugging output
+        print(f"Action: {action}, Reward: {reward}, Done: {done}")
+
+        # End loop if game is over
+        if done:
+            print(f"Game Over! Total Reward: {reward}")
+            running = False
+
+        # Control game speed
+        clock.tick(fps)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main_rl()

@@ -2,14 +2,19 @@ import torch
 import numpy as np
 
 '''Handles the training loop and DQN updates.'''
-
 def train_agent(env, agent, config):
     epsilon = config["epsilon"]
+    max_steps = config.get("max_steps_per_episode", 10)
+
     for episode in range(config["num_episodes"]):
         state = env.get_board_state()
         done = False
+        step_count = 0
+        cumulative_reward = 0
 
-        while not done:
+        while not done and step_count < max_steps:
+            step_count += 1
+
             # Render environment if enabled
             if config["render"]:
                 env.render()
@@ -17,6 +22,9 @@ def train_agent(env, agent, config):
             # Select and execute action
             action = agent.select_action(state, epsilon)
             next_state, reward, done = env.step(action)
+
+            # Track cumulative reward
+            cumulative_reward += reward
 
             # Store transition in replay buffer
             agent.replay_buffer.push(state, action, reward, next_state, done)
@@ -28,6 +36,16 @@ def train_agent(env, agent, config):
 
         # Decay epsilon
         epsilon = max(config["min_epsilon"], epsilon * config["epsilon_decay"])
+
+        # Log episode information
+        print(f"Episode {episode + 1}/{config['num_episodes']} | Reward: {cumulative_reward} | Steps: {step_count} | Epsilon: {epsilon:.4f}")
+
+        if step_count >= max_steps:
+            print("Reached maximum steps for episode.")
+
+    # Save the trained model
+    torch.save(agent.policy_net.state_dict(), config["save_path"])
+    print(f"Model saved to {config['save_path']}")
 
 
 def train_step(agent, config):
