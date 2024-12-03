@@ -62,6 +62,7 @@ class Tetris:
         self.active_piece = None
 
     def spawn_piece(self):
+        
         if self.state == "start":  # Only spawn a piece if the game is not over
             self.active_piece = Block(3, 0)
 
@@ -244,6 +245,12 @@ class Tetris:
         elif action == "ROTATE":
             self.rotate_piece()
 
+        if self.active_piece:
+            print(f"Active Piece Position: ({self.active_piece.x}, {self.active_piece.y}), Rotation: {self.active_piece.rotation}")
+        else:
+            print("No active piece.")
+
+
         reward = self.calculate_reward()  # Calculate reward based on the current state
         done = self.state == "gameover"  # Check if the game is over
         next_state = self.get_board_state()  # Get the updated board state
@@ -332,6 +339,7 @@ def main():
         clock.tick(fps)
 
     pygame.quit()
+    
 def main_rl():
     pygame.init()
     size = (400, 600)
@@ -346,7 +354,7 @@ def main_rl():
     cnn.load_state_dict(torch.load("tetris_cnn.pth"))  # Load the saved model
     cnn.eval()  # Set the model to evaluation mode
     actions = ["LEFT", "RIGHT", "DOWN", "ROTATE"]
-    agent = DQNAgent(cnn, actions, epsilon=0)  # Use greedy policy (no exploration)
+    agent = DQNAgent(cnn, actions, 0)  # Use greedy policy (no exploration)
 
     print("Testing the trained model...")
 
@@ -364,6 +372,9 @@ def main_rl():
         state = next_state
         total_reward += reward
 
+        print(f"State: {env.state}, Done: {done}, Reward: {reward}")
+        print(f"Selected Action: {action}")
+
         # Render the game
         env.draw_grid(screen)
         env.draw_piece(screen)
@@ -380,4 +391,4 @@ def main_rl():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()  # Run the testing function
+    main_rl()  # Run the testing function

@@ -69,14 +69,14 @@ class DQNAgent:
             print(f"Episode {episode + 1}/{num_episodes}, Total Reward: {total_reward}, Epsilon: {agent.epsilon:.2f}")
             torch.save(agent.cnn.state_dict(), "tetris_cnn.pth")
 
-    def __init__(self):
-        super(DeepQNetwork, self).__init__()
+    # def __init__(self):
+    #     super(DeepQNetwork, self).__init__()
 
-        self.conv1 = nn.Sequential(nn.Linear(4, 64), nn.ReLU(inplace=True))
-        self.conv2 = nn.Sequential(nn.Linear(64, 64), nn.ReLU(inplace=True))
-        self.conv3 = nn.Sequential(nn.Linear(64, 1))
+    #     self.conv1 = nn.Sequential(nn.Linear(4, 64), nn.ReLU(inplace=True))
+    #     self.conv2 = nn.Sequential(nn.Linear(64, 64), nn.ReLU(inplace=True))
+    #     self.conv3 = nn.Sequential(nn.Linear(64, 1))
 
-        self._create_weights()
+    #     self._create_weights()
 
     def _create_weights(self):
         for m in self.modules():
